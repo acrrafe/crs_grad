@@ -189,6 +189,7 @@ class UserHomePageState extends State<UserHomePage> {
                     => FacultyDashBoard App(studentId: data['studentId'])));  // Name ng Class mo sa ibang activity
            */
         }else{
+          await oauth.logout();
           showMessage('Your Account is not registered!');
         }
       } else {
