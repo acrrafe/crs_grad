@@ -29,12 +29,13 @@ class StudentDashboardHome extends StatefulWidget {
 
 class _StudentDashboardHomeState extends State<StudentDashboardHome> {
   int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: <Widget>[
         StudDashBoardContent(studentId: widget.studentId),
-        StudentEnrollmentApp(),
+        StudentEnrollmentApp(studentId: widget.studentId),
         StudentGradesApp(),
         StudentMessageApp(),
       ][_currentIndex],

@@ -58,22 +58,24 @@ class UserHomePageState extends State<UserHomePage> {
   Future<void> checkCachedAccountInformation() async {
     var checkHashVal = await hasCachedAccountInformation();
     var accessToken = await oauth.getAccessToken();
-    final graphAPI = MSGraphAPI(accessToken!);
-    final User userInfo = await graphAPI.me.fetchUserInfo();
-    Map<String, dynamic> data = await apiService.fetchData(userInfo.mail!);
-    if (checkHashVal) {
-      if (data['userType'] != null &&
-          data['emailAddress'] != null &&
-          data['studentId'] != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                StudentDashboardApp(studentId: data['studentId']),
-          ),
-        );
-      } else if (data['userType'] == 'faculty') {
-        // Gayahin mo lang din ung sa if pero lagay mo ung sarili mong path
+    if(accessToken!= null){
+      final graphAPI = MSGraphAPI(accessToken!);
+      final User userInfo = await graphAPI.me.fetchUserInfo();
+      Map<String, dynamic> data = await apiService.fetchData(userInfo.mail!);
+      if (checkHashVal) {
+        if (data['userType'] != null &&
+            data['emailAddress'] != null &&
+            data['studentId'] != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  StudentDashboardApp(studentId: data['studentId']),
+            ),
+          );
+        } else if (data['userType'] == 'faculty') {
+          // Gayahin mo lang din ung sa if pero lagay mo ung sarili mong path
+        }
       }
     }
   }
@@ -91,7 +93,7 @@ class UserHomePageState extends State<UserHomePage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               // Show a circular progress indicator while waiting for the future to complete
               return CircularProgressIndicator();
-            }  else {
+            } else {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -193,9 +195,11 @@ class UserHomePageState extends State<UserHomePage> {
           showMessage('Your Account is not registered!');
         }
       } else {
+        await oauth.logout();
         showMessage('One or more required values (userType, emailAddress, studentId) are null, unable to navigate to the student dashboard');
       }
     } catch (e) {
+      await oauth.logout();
       showError('Error fetching user details: $e');
     }
   }
