@@ -7,7 +7,6 @@ import 'package:aad_oauth/aad_oauth.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-
 final Config config = new Config(
   tenant: "YOUR_TENANT_ID",
   clientId: "YOUR_CLIENT_ID",

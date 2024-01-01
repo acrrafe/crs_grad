@@ -53,7 +53,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
 
 
   APIService apiService = APIService();
-  late Future<void> fetchData;
+  Future<void>? fetchData;
   late Map<String, dynamic> data = {};
   late List<Map<String, dynamic>> flags = [];
   late List<Map<String, dynamic>> classInfos = []; // Change the type to List<Map<String, dynamic>>
@@ -66,10 +66,13 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
       setState(() {
         this.data = data;
       });
+      // Check enrollmentStatus and conditionally call fetchDataAsync
+      if (data['enrollmentStatus'] != 1) {
+        fetchData = fetchDataAsync();
+      } else {
+        fetchData = Future.error('Enrollment status is 1'); // Set a completed future with an error
+      }
     });
-
-    fetchData = fetchDataAsync();
-
   }
 
   Future<void> fetchDataAsync() async {
@@ -110,12 +113,36 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
         child: FutureBuilder(
             future: fetchData,
             builder: (context, snapshot) {
+              if (fetchData == null) {
+                // Handle the case when fetchData is null
+                return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
+              }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 // Future is still loading, return a loading indicator or placeholder
-                return Center(child: CircularProgressIndicator());
+                return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
+
               } else if (snapshot.hasError) {
                 // Handle the error
-                return Text('Error: ${snapshot.error}');
+                // Display Congratulations! and a button
+                return Center(
+                  child:   Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Congratulations!',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle the button click event (e.g., print EAF)
+                          // You can add the logic for printing the EAF here
+                        },
+                        child: Text('Print EAF'),
+                      ),
+                    ],
+                  ),
+                );
               } else {
                 // int totalPages = _currentStep == 1 ? (classInfos.length / _rowsPerPage).ceil() : (selectedClass.length / _rowsPerPage).ceil();
                 return SingleChildScrollView(
@@ -386,7 +413,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Container(
-
           child: DataTable(
             columns: const [
               DataColumn(label: Text('Class/Section')),
@@ -953,6 +979,8 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
       var id = studentId;
 
       await apiService.addBalance(id, totalAmount!, totalAmount, selectedPayment, program, flag);
+      await apiService.addStudentClassInfo(id, selectedClasses);
+      await apiService.updateStudentEnrollment(id);
       _handleNextButtonClick();
 
     } else {

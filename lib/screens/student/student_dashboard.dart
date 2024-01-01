@@ -1,5 +1,6 @@
 import 'package:aad_oauth/aad_oauth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:plm_crs_grad/services/apiService.dart';
 import '../../auth/auth_config.dart';
 import '../login.dart';
@@ -36,8 +37,8 @@ class _StudentDashboardHomeState extends State<StudentDashboardHome> {
       body: <Widget>[
         StudDashBoardContent(studentId: widget.studentId),
         StudentEnrollmentApp(studentId: widget.studentId),
-        StudentGradesApp(),
-        StudentMessageApp(),
+        StudentGradesApp(studentId: widget.studentId),
+        StudentMessageApp(studentId: widget.studentId),
       ][_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Set to fixed
@@ -69,7 +70,7 @@ class _StudentDashboardHomeState extends State<StudentDashboardHome> {
           BottomNavigationBarItem(
             activeIcon: Icon(Icons.message),
             icon: Icon(Icons.message_outlined),
-            label: 'Settings',
+            label: 'Messages',
           ),
         ],
       ),
@@ -90,166 +91,421 @@ class _StudDashBoardContent extends State<StudDashBoardContent> {
   final int studentId;
   _StudDashBoardContent({required this.studentId});
 
+  Future<void>? fetchData;
+
   APIService apiService = APIService();
-  late Map<String, dynamic> data = {};
+  late Map<String, dynamic> studentInfo = {};
+  late List<Map<String, dynamic>> classInfos = [];
+  late List<Map<String, dynamic>> classInfo = [];
+  late List<Map<String, dynamic>> flags = [];
+  late List<Map<String, dynamic>> userBalance = [];
 
   @override
   void initState() {
     super.initState();
     apiService.fetchUserInfo(widget.studentId).then((data) {
       setState(() {
-        this.data = data;
+        studentInfo = data;
       });
     });
+
+    apiService.fetchFlags().then((flag){
+      if (flag != null) {
+          print(flag.first);
+          setState(() {
+            flags = flag;
+          });
+          int value = int.parse(flags.first['value']);
+          if(value != null){
+            fetchData = fetchDataAsync(value);
+
+          }else {
+            fetchData = Future.error('Enrollment status is 1'); // Set a completed future with an error
+          }
+      }
+    });
+    }
+
+  Future<void> fetchDataAsync(int flagValue) async {
+    try {
+      print("STUDENT ID: ${widget.studentId}");
+      print("FLAGS VALUE: $flagValue");
+      classInfo = await apiService.fetchClassEnlisted(widget.studentId, flagValue);
+      userBalance = await apiService.fetchUserBalance(widget.studentId);
+      print("USER BALANCE: $userBalance");
+      setState(() {
+        classInfos = classInfo;
+        userBalance = userBalance;
+      });
+
+    } catch (error) {
+      // Handle errors here
+      print('Error fetching data: $error');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: "",
-        onMenuPressed: () {},
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity, // Maximize the width of the container
-            padding: EdgeInsets.all(9.0),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              elevation: 3.0,
-              margin: EdgeInsets.all(10.0),
-              child: Container(
-                padding: EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity, // Maximize the width of the title background
-                      padding: EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        color: Colors.red[900],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Text(
-                        'STATUS',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    Container(
-                      padding: EdgeInsets.all(10.0),
-                      child: data['enrollmentStatus'] == 0
-                          ? Text(
-                        'You\'re not yet officially Enrolled for this term.',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                        ),
-                      )
-                          : Text(
-                        'You\'ve already enrolled for this term. Enjoy your classes!',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+
+    return FutureBuilder(
+        future: fetchData,
+        builder: (context, snapshot)
+    {
+      if (fetchData == null) {
+        // Handle the case when fetchData is null
+        return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
+      }
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        // Future is still loading, return a loading indicator or placeholder
+        return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
+      } else {
+        return Scaffold(
+          appBar: CustomAppBar(
+            title: "",
+            onMenuPressed: () {},
           ),
-          Container(
-            width: double.infinity, // Maximize the width of the container
-            padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              elevation: 3.0,
-              margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-              child: Container(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity, // Maximize the width of the title background
-                      padding: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        color: Colors.red[900],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: const Text(
-                        'STUDENT INFORMATION',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+          body: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity, // Maximize the width of the container
+                  padding: EdgeInsets.all(9.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
                     ),
-                    const SizedBox(height: 10.0),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                            padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
-                            child:  Text(
-                              'STUDENT ID : ${widget.studentId}',
-                              style: const TextStyle(color: Colors.black,
-                                fontSize: 14.0,
-                              ),
-                            )
-                        ),
-                        Container(
-                            padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
+                    elevation: 3.0,
+                    margin: EdgeInsets.all(10.0),
+                    child: Container(
+                      padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            // Maximize the width of the title background
+                            padding: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red[900],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
                             child: Text(
-                              'STUDENT NAME: ${data['firstName']} ${data['middleName']} ${data['lastName']}',
-                              style: const TextStyle(
+                              'STATUS',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10.0),
+                          Container(
+                            padding: EdgeInsets.all(10.0),
+                            child: studentInfo['enrollmentStatus'] == 0
+                                ? Text(
+                              'You\'re not yet officially Enrolled for this term.',
+                              style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 14.0,
                               ),
                             )
-                        ),
-                        Container(
-                            padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
-                            child:  Text(
-                              'STUDENT EMAIL : ${data['emailAddress']}',
-                              style: const TextStyle(color: Colors.black,
+                                : Text(
+                              'You\'ve already enrolled for this term. Enjoy your classes!',
+                              style: TextStyle(
+                                color: Colors.black,
                                 fontSize: 14.0,
                               ),
-                            )
-                        ),
-                        Container(
-                            padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
-                            child:  Text(
-                              'STUDENT NO. : ${data['contactNumber']}',
-                              style: const TextStyle(color: Colors.black,
-                                fontSize: 14.0,
-                              ),
-                            )
-                        ),
-                      ],
-                    )
-
-                  ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                Container(
+                  width: double.infinity, // Maximize the width of the container
+                  padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 3.0,
+                    margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            // Maximize the width of the title background
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red[900],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: const Text(
+                              'STUDENT INFORMATION',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      10.0, 8.0, 10.0, 8.0),
+                                  child: Text(
+                                    'STUDENT ID : ${widget.studentId}',
+                                    style: const TextStyle(color: Colors.black,
+                                      fontSize: 14.0,
+                                    ),
+                                  )
+                              ),
+                              Container(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      10.0, 8.0, 10.0, 8.0),
+                                  child: Text(
+                                    'STUDENT NAME: ${studentInfo['firstName']} ${studentInfo['middleName']} ${studentInfo['lastName']}',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.0,
+                                    ),
+                                  )
+                              ),
+                              Container(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      10.0, 8.0, 10.0, 8.0),
+                                  child: Text(
+                                    'STUDENT EMAIL : ${studentInfo['emailAddress']}',
+                                    style: const TextStyle(color: Colors.black,
+                                      fontSize: 14.0,
+                                    ),
+                                  )
+                              ),
+                              Container(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      10.0, 8.0, 10.0, 8.0),
+                                  child: Text(
+                                    'STUDENT NO. : ${studentInfo['contactNumber']}',
+                                    style: const TextStyle(color: Colors.black,
+                                      fontSize: 14.0,
+                                    ),
+                                  )
+                              ),
+                            ],
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  width: double.infinity, // Maximize the width of the container
+                  padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 3.0,
+                    margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            // Maximize the width of the title background
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red[900],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: const Text(
+                              'ENLISTED CLASS',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Loop through classInfos and create Text widgets for each class
+                              for (var classInfo in classInfos)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10.0, 8.0, 10.0, 8.0),
+                                      child: Text(
+                                        '${classInfo['subjectName']}',
+                                        style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10.0, 8.0, 10.0, 8.0),
+                                      child: Text(
+                                        'Day: ${classInfo['classDay']}, Time: ${formatTime(
+                                            classInfo['timeStart'])} - ${formatTime(
+                                            classInfo['timeEnd'])} at  ${classInfo['room']}',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  width: double.infinity, // Maximize the width of the container
+                  padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 3.0,
+                    margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            // Maximize the width of the title background
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red[900],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: const Text(
+                              'PAYMENT',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  columns: const [
+                                    DataColumn(label: Text('Payment Term ')),
+                                    DataColumn(label: Text('Total Amount')),
+                                    DataColumn(label: Text('Overall Balance')),
+                                    DataColumn(label: Text(
+                                        'Amount to be paid for this sem')),
+                                  ],
+                                  rows: userBalance.map<DataRow>((
+                                      userBalances) {
+                                    // Extract relevant information from classInfo
+                                    // String classSection = "${userBalances['payments']['paymentPartial']}";
+                                    int itemCount = userBalances['payments']
+                                        .length;
+                                    String classSection = " ";
+                                    switch (itemCount) {
+                                      case 1:
+                                        classSection = "One Time Payment";
+                                        break;
+                                      case 2:
+                                        classSection = "Two Partial Payment";
+                                        break;
+                                      case 3:
+                                        classSection = "Three Partial Payment";
+                                        break;
+                                      case 4:
+                                        classSection = "Four Partial Payment";
+                                        break;
+                                      case 5:
+                                        classSection = "Five Partial Payment";
+                                        break;
+                                      default:
+                                        break;
+                                    }
+
+                                    String schedule = "${userBalances['totalAmount']}";
+                                    String classTitle = userBalances['balance']
+                                        .toString();
+                                    String classTitle2 = userBalances['payments']
+                                        .isNotEmpty
+                                        ? userBalances['payments'][0]['amount']
+                                        .toString()
+                                        : 'N/A';
+
+                                    print(
+                                        "CLASS SECTION $classSection $schedule $classTitle $classTitle2");
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(classSection)),
+                                        DataCell(Text(schedule)),
+                                        DataCell(Text(classTitle)),
+                                        DataCell(Text(classTitle2)),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
+                              )
+
+                            ],
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10,)
+              ],
             ),
           ),
-        ],
-      ),
+
+        );
+      }
+    },
     );
+
   }
 }
 
+
+
+String formatTime(String time) {
+  if (time != null && time.isNotEmpty) {
+    DateTime dateTime = DateTime.parse("2023-01-01 $time");
+    return DateFormat('hh:mm a').format(dateTime);
+  } else {
+    return '';
+  }
+}
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
