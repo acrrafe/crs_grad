@@ -36,15 +36,19 @@ class _StudentMessageAppPageState extends State<StudentMessageAppPage> {
   APIService apiService = APIService();
   late List<Map<String, dynamic>> studentMessages = [];
 
+  Future<void>? fetchData;
+
+
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchData = fetchDataAsync();
   }
 
-  void fetchData() async {
+  Future<void> fetchDataAsync() async {
     try {
-      List<Map<String, dynamic>> data = await apiService.fetchUserMessages(widget.studentId);
+      List<Map<String, dynamic>> data = await apiService.fetchUserMessages(
+          widget.studentId);
 
       // Sort the list based on the 'date' field in descending order
       data.sort((a, b) {
@@ -65,88 +69,118 @@ class _StudentMessageAppPageState extends State<StudentMessageAppPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          alignment: Alignment.topCenter,
-          color: Colors.red[800],
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Text(
-              'Messages',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    return FutureBuilder(
+        future: fetchData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Future is still loading, return a loading indicator or placeholder
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!),
               ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView.builder(
-              itemCount: studentMessages.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0), // Adjust vertical padding
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '*',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red[900],
-                        ),
+            );
+          } else if (snapshot.hasError) {
+            // An error occurred, display a centered text
+            return Center(
+              child: Text(
+                'Error loading data. Please try again later.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+            );
+          } else {
+            return Column(
+              children: [
+                Container(
+                  alignment: Alignment.topCenter,
+                  color: Colors.red[900],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Text(
+                      'Messages',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                      SizedBox(width: 8), // Add some space between '*' and the column
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              studentMessages[index]['title'] ?? '',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              studentMessages[index]['description'] ?? '',
-                              style: TextStyle(
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              DateFormat('h:mm a MMM dd, yyyy').format(DateTime.parse(studentMessages[index]['date'])),
-                              style: TextStyle(
-                                fontSize: 14,
-                              ),
-                            ),
-                            Divider(
-                              thickness: 1,
-                              color: Colors.black,
-                            ),
-                            SizedBox(height: 8),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-        ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ListView.builder(
+                      itemCount: studentMessages.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          // Adjust vertical padding
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '*',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red[900],
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              // Add some space between '*' and the column
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      studentMessages[index]['title'] ?? '',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      studentMessages[index]['description'] ??
+                                          '',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      DateFormat('h:mm a MMM dd, yyyy').format(
+                                          DateTime.parse(
+                                              studentMessages[index]['date'])),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Divider(
+                                      thickness: 1,
+                                      color: Colors.black,
+                                    ),
+                                    SizedBox(height: 8),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
 
-      ],
+              ],
+            );
+          }
+        }
     );
   }
-
 }
 
 

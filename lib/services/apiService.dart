@@ -39,6 +39,8 @@ class APIService {
     var apiURL = "$mobileURL$userLog";
     var url = Uri.parse(apiURL);
     final response = await http.get(url);
+    List<dynamic> classInfos = [];
+
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       final firstDataObject = jsonResponse['data'];
@@ -55,6 +57,7 @@ class APIService {
       final birthDate = firstDataObject['birthDate'];
       final year = firstDataObject['year'];
       final enrollmentStatus = firstDataObject['enrollmentStatus'];
+      classInfos = firstDataObject['class_infos'];
 
 
       final data = {
@@ -72,8 +75,10 @@ class APIService {
         'birthDate': birthDate,
         'year': year,
         'enrollmentStatus': enrollmentStatus,
+        'class_infos' : classInfos,
 
       };
+      print("FETCH USER INFO DATA: $data");
       return data;
 
     } else {
@@ -372,8 +377,8 @@ class APIService {
   }
 
   // Get the studentId from Users and use that to fetch the users information
-  Future<List<Map<String, dynamic>>> fetchUserBalance(int studentId) async {
-    var userLog = "balances?studentId[eq]=$studentId"; // Path na icoconnect sa main path
+  Future<List<Map<String, dynamic>>> fetchUserBalance(int studentId, int aysem) async {
+    var userLog = "balances?studentId[eq]=$studentId&aysem[eq]=$aysem"; // Path na icoconnect sa main path
     var apiURL = "$mobileURL$userLog";
     var url = Uri.parse(apiURL);
     final response = await http.get(url);
@@ -383,21 +388,21 @@ class APIService {
     print(response.body);
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
-
-      // Check if 'data' is a List and not empty
       if (jsonResponse['data'] is List && jsonResponse['data'].isNotEmpty) {
         final List<dynamic> dataList = jsonResponse['data'];
 
         for (final data in dataList) {
+          final id = data['id'];
           final totalAmount = data['totalAmount'];
           final paidAmount = data['paidAmount'];
           final excess = data['excess'];
           final balance = data['balance'];
           final aysem = data['aysem'];
-          final List<dynamic> payments = data['payments'];
+          final List<Map<String, dynamic>> payments =
+          (data['payments'] as List).cast<Map<String, dynamic>>();
 
-
-            final data2 = {
+          final data2 = {
+              'id': id,
               'totalAmount': totalAmount,
               'paidAmount': paidAmount,
               'excess': excess,

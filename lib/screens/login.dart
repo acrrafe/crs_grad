@@ -176,7 +176,10 @@ class UserHomePageState extends State<UserHomePage> {
     try {
       final graphAPI = MSGraphAPI(accessToken);
       final User userInfo = await graphAPI.me.fetchUserInfo();
+      print("USER TOKEN: ${accessToken}");
+      print("USER INFORMATION: ${userInfo.mail} ${userInfo.givenName}");
       Map<String, dynamic> data = await apiService.fetchData(userInfo.mail!);
+      print("USER DATA: $data");
 
       if (data['userType'] != null && data['emailAddress'] != null && data['studentId'] != null) {
         if(data['userType'] == 'student'){

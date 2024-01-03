@@ -100,6 +100,7 @@ class _StudDashBoardContent extends State<StudDashBoardContent> {
   late List<Map<String, dynamic>> flags = [];
   late List<Map<String, dynamic>> userBalance = [];
 
+
   @override
   void initState() {
     super.initState();
@@ -131,7 +132,7 @@ class _StudDashBoardContent extends State<StudDashBoardContent> {
       print("STUDENT ID: ${widget.studentId}");
       print("FLAGS VALUE: $flagValue");
       classInfo = await apiService.fetchClassEnlisted(widget.studentId, flagValue);
-      userBalance = await apiService.fetchUserBalance(widget.studentId);
+      userBalance = await apiService.fetchUserBalance(widget.studentId, flagValue);
       print("USER BALANCE: $userBalance");
       setState(() {
         classInfos = classInfo;
@@ -483,6 +484,198 @@ class _StudDashBoardContent extends State<StudDashBoardContent> {
                     ),
                   ),
                 ),
+                SizedBox(height: 10,),
+                Container(
+                  width: double.infinity, // Maximize the width of the container
+                  padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 3.0,
+                    margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            // Maximize the width of the title background
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red[900],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: const Text(
+                              'PAYMENT HISTORY',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  columns: const [
+                                    DataColumn(label: Text('Id')),
+                                    DataColumn(label: Text('Paid Installment ')),
+                                    DataColumn(label: Text('Year Term')),
+                                    DataColumn(label: Text('Date Paid')),
+                                    DataColumn(label: Text('Paid Amount')),
+                                    DataColumn(label: Text('Excess')),
+                                    DataColumn(label: Text('Status')),
+                                  ],
+
+                                  rows: userBalance[0]['payments'].map<DataRow>((
+                                      userBalances) {
+                                    // Extract relevant information from classInfo
+                                    // String classSection = "${userBalances['payments']['paymentPartial']}";
+                                    int itemCount = userBalances['paymentPartial'];
+                                    String classSection = " ";
+                                    switch (itemCount) {
+                                      case 1:
+                                        classSection = "1st Payment";
+                                        break;
+                                      case 2:
+                                        classSection = "2nd Payment";
+                                        break;
+                                      case 3:
+                                        classSection = "3rd Payment";
+                                        break;
+                                      case 4:
+                                        classSection = "4th Payment";
+                                        break;
+                                      case 5:
+                                        classSection = "5th Payment";
+                                        break;
+                                      default:
+                                        break;
+                                    }
+
+                                    String status = userBalances['status'];
+                                    String statusLong = " ";
+                                    switch (status) {
+                                      case "B":
+                                        statusLong = "Billed";
+                                        break;
+                                      case "P":
+                                        statusLong = "Paid";
+                                        break;
+                                      case "V":
+                                        statusLong = "Void";
+                                        break;
+                                      default:
+                                        break;
+                                    }
+
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(userBalances['id'].toString())),
+                                        DataCell(Text(classSection)),
+                                        DataCell(Text(userBalance.first['aysem'].toString())),
+                                        DataCell(Text(userBalances['paidDate'] != null ? userBalances['paidDate'] : "N \\ A")),
+                                        DataCell(Text(userBalances['amount'].toString())),
+                                        DataCell(Text(userBalances['excess'] != null ? userBalances['excess'].toString() : "0.00")),
+                                        DataCell(Text(statusLong)),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
+                              )
+                            ],
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10,),
+                Container(
+                  width: double.infinity, // Maximize the width of the container
+                  padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 3.0,
+                    margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            // Maximize the width of the title background
+                            padding: const EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red[900],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: const Text(
+                              'ASSESSMENT HISTORY',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  columns: const [
+                                    DataColumn(label: Text('Id')),
+                                    DataColumn(label: Text('Year/Term')),
+                                    DataColumn(label: Text('Total Tuition')),
+                                    DataColumn(label: Text('Paid Amount')),
+                                    DataColumn(label: Text('Balance')),
+                                  ],
+                                  rows: userBalance.map<DataRow>((
+                                      userBalances) {
+                                    // Extract relevant information from classInfo
+                                    // String classSection = "${userBalances['payments']['paymentPartial']}";
+                                    print("USER BALANCES: $userBalance");
+                                    String balance = "${userBalances['totalAmount']}";
+                                    return DataRow(
+                                      cells: [
+                                        //
+                                        // DataColumn(label: Text('Id')),
+                                        // DataColumn(label: Text('Year/Term')),
+                                        // DataColumn(label: Text('Total Tuition')),
+                                        // DataColumn(label: Text('Paid Amount')),
+                                        // DataColumn(label: Text('Overall Balance')),
+
+                                        DataCell(Text(userBalances['id'].toString())),
+                                        DataCell(Text(userBalances['aysem'].toString())),
+                                        DataCell(Text(userBalances['totalAmount'].toString())),
+                                        DataCell(Text(userBalances['paidAmount'] != null ? userBalances['paidAmount'] : "0.0")),
+                                        DataCell(Text(balance)),
+
+                                      ],
+                                    );
+                                  }).toList(),
+                                ),
+                              )
+
+                            ],
+                          )
+
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(height: 10,)
               ],
             ),
@@ -495,7 +688,6 @@ class _StudDashBoardContent extends State<StudDashBoardContent> {
 
   }
 }
-
 
 
 String formatTime(String time) {

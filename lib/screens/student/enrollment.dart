@@ -48,6 +48,8 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
   List<int> selectedClass = [];
   List<Map<String, dynamic>> userSelectedClasses = [];
 
+  late List<Map<String, dynamic>> userBalance = [];
+
   int _selectedPaymentType = 0;
   bool isLastPage = false;
 
@@ -56,7 +58,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
   Future<void>? fetchData;
   late Map<String, dynamic> data = {};
   late List<Map<String, dynamic>> flags = [];
-  late List<Map<String, dynamic>> classInfos = []; // Change the type to List<Map<String, dynamic>>
+  late List<Map<String, dynamic>> classInfos = [];
   int? value;
 
   @override
@@ -83,18 +85,22 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
         setState(() {
           this.flags = flags;
         });
-        print(flags);
         // Assuming 'value' is the key you're interested in
         int value = int.parse(flags.first['value']);
-        print("VALUE $value");
         // Check if 'value' is an integer
+        userBalance = await apiService.fetchUserBalance(widget.studentId, value);
         List<Map<String, dynamic>> classInfos = await apiService.fetchClassInfos(value);
         if (classInfos != null) {
           setState(() {
             this.classInfos = classInfos;
+            userBalance = userBalance;
           });
         }
+
+
       }
+
+
     } catch (error) {
       // Handle errors here
       print('Error fetching data: $error');
@@ -122,22 +128,77 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                 return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
 
               } else if (snapshot.hasError) {
-                // Handle the error
-                // Display Congratulations! and a button
                 return Center(
                   child:   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Congratulations!',
+                        'Congratulations on your \n successful enrollment!',
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () {
-                          // Handle the button click event (e.g., print EAF)
-                          // You can add the logic for printing the EAF here
+                        onPressed: () async {
+                          await fetchDataAsync();
+
+                          List<Map<String, dynamic>> selectedClass = (data['class_infos'] as List).cast<Map<String, dynamic>>();
+                          Map<String, double> result = calculateTotalAmount(selectedClass, flags);
+
+                          double? totalAmount = result['totalAmount'];
+                          double? totalTuitionFee = result['totalTuitionFee'];
+                          double? countMiscellaneousFee = result['countMiscellaneousFee'];
+                          double? otherFee = result['otherFee'];
+
+                          // Handle "Print EAF" button click
+                          List<Map<String, double>> paymentBreakdown = [];
+                          var studentNum = studentId;
+                          var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
+                          var studentCourse = "${data['program']}";
+                          var studentCollege = "${data['college']}";
+                          var aysem = int.parse(flags[0]['value']);
+                          print("AYSEM: $userBalance");
+                          var paymentTerm = 'N/A';
+                          // SelectedClass
+                          var dateAssessed = 'N/A';
+
+                          // Access the payments list
+                          var paymentsList = userBalance[0]['payments'];
+
+
+                          int paymentsListLength = paymentsList.length;
+
+                          var payment = totalAmount! / paymentsListLength;
+
+                          for (int count = 1; count <= paymentsListLength; count++) {
+                            // Create a Map with the key based on the count and the payment value
+                            Map<String, double> paymentMap = {};
+                            if (count == 1) {
+                              paymentMap = {'${count}st Payment': payment};
+                            } else if (count == 3) {
+                              paymentMap = {'${count}rd Payment': payment};
+                            } else if (count == 4 || count == 5) {
+                              paymentMap = {'${count}th Payment': payment};
+                            } else {
+                              paymentMap = {'${count}nd Payment': payment};
+                            }
+                            paymentBreakdown.add(paymentMap);
+                          }
+
+
+                          CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
+                              studentName: studentName, studentCourse: studentCourse, college: studentCollege,
+                              aysem: aysem, paymentTerm: paymentTerm, selectedClass: selectedClass,
+                              tuitionFee: totalTuitionFee!, miscellaneousFee: countMiscellaneousFee!, otherFees:
+                              otherFee!, totalAmount: totalAmount, paymentType: paymentsListLength, dateAssessed:
+                              dateAssessed, payment: paymentBreakdown);
+
+                           await _generatePdf(pdfData);
+
                         },
+
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green[900], // Change button color to green
+                        ),
                         child: Text('Print EAF'),
                       ),
                     ],
@@ -195,7 +256,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                                 // Red box with pagination and search bar
                                 Container(
                                   color: Colors.red[900],
-                                  padding: EdgeInsets.symmetric(vertical: 4.0),
+                                  padding: EdgeInsets.symmetric(vertical: 6.0),
                                   child: Row(
                                     children: [
                                       Flexible(
@@ -227,14 +288,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                                           ),
                                         ),
                                       ),
-                                      Flexible(
-                                        child: Container(
-                                          margin: EdgeInsets.fromLTRB(0, 0, 5.0, 0),
-                                          // Search bar goes here
-                                          color: Colors.white,
-                                          child: SearchBar(),
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -244,7 +297,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                           // Content based on step
                           _buildStepContent(),
                           // Next and Back buttons
-
                           Visibility(
                               visible: _currentStep == 1 || _currentStep == 2 || _currentStep == 3,
                               child:Padding(
@@ -282,7 +334,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                               ],
                             ),
                           )),
-
                         ],
                       )
                   ),
@@ -424,7 +475,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
               String classSection = "${classInfo['program']} - ${classInfo['section']}";
               String schedule = "${classInfo['classDay']} ${classInfo['timeStart']} - ${classInfo['timeEnd']}";
               String classTitle = classInfo['subjectName'];
-
               return DataRow(
                 cells: [
                   DataCell(Text(classSection)),
@@ -511,7 +561,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
       children: [
         SizedBox(height: 20),
         Text(
-          'Congratulations!',
+          'Congratulations on your \n successful enrollment!',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -522,7 +572,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
           onPressed: () async {
             // Handle "Print EAF" button click
             List<Map<String, double>> paymentBreakdown = [];
-
             var studentNum = studentId;
             var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
             var studentCourse = "${data['program']}";
@@ -534,7 +583,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
             var payment = totalAmount! / _selectedPaymentType;
 
             for (int count = 1; count <= _selectedPaymentType; count++) {
-              // Create a Map with the key based on the count and the payment value
               Map<String, double> paymentMap = {};
               if (count == 1) {
                 paymentMap = {'${count}st Payment': payment};
@@ -547,8 +595,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
               }
               paymentBreakdown.add(paymentMap);
             }
-
-            print("SELECTED CLASS VALUES: $userSelectedClasses");
             CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
                 studentName: studentName, studentCourse: studentCourse, college: studentCollege,
                 aysem: aysem, paymentTerm: paymentTerm, selectedClass: userSelectedClasses,
@@ -558,6 +604,9 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
 
             await _generatePdf(pdfData);
           },
+          style: ElevatedButton.styleFrom(
+            primary: Colors.green[900], // Change button color to green
+          ),
           child: Text('Print EAF'),
         ),
         SizedBox(height: 20),
@@ -632,8 +681,11 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                     'PAMANTASAN NG LUNGSOD NG MAYNILA',
                     style: pw.TextStyle(fontSize: 12, font: ttfBold),
                   ),
+                  pw.SizedBox(height: 2),
                   pw.Text('University of the City Manila', style: pw.TextStyle(font: ttfRegular)),
+                  pw.SizedBox(height: 2),
                   pw.Text('Intramuros, Manila', style: pw.TextStyle(font: ttfRegular)),
+                  pw.SizedBox(height: 2),
                   pw.Text('ENROLLMENT ASSESSMENT FORM', style: pw.TextStyle(fontSize: 12, font: ttfBold)),
                 ],
               ),
