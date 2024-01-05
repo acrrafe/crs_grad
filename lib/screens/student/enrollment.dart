@@ -52,6 +52,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
 
   int _selectedPaymentType = 0;
   bool isLastPage = false;
+  bool isLoading = true;
 
 
   APIService apiService = APIService();
@@ -88,7 +89,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
         // Assuming 'value' is the key you're interested in
         int value = int.parse(flags.first['value']);
         // Check if 'value' is an integer
-        userBalance = await apiService.fetchUserBalance(widget.studentId, value);
         List<Map<String, dynamic>> classInfos = await apiService.fetchClassInfos(value);
         if (classInfos != null) {
           setState(() {
@@ -96,8 +96,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
             userBalance = userBalance;
           });
         }
-
-
+        userBalance = await apiService.fetchUserBalance(widget.studentId, value);
       }
 
 
@@ -137,70 +136,77 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await fetchDataAsync();
+                      Container(
+                        child:   ElevatedButton(
+                          onPressed: () async {
+                            setState(() => isLoading = false);
+                            await fetchDataAsync();
 
-                          List<Map<String, dynamic>> selectedClass = (data['class_infos'] as List).cast<Map<String, dynamic>>();
-                          Map<String, double> result = calculateTotalAmount(selectedClass, flags);
+                            List<Map<String, dynamic>> selectedClass = (data['class_infos'] as List).cast<Map<String, dynamic>>();
+                            Map<String, double> result = calculateTotalAmount(selectedClass, flags);
 
-                          double? totalAmount = result['totalAmount'];
-                          double? totalTuitionFee = result['totalTuitionFee'];
-                          double? countMiscellaneousFee = result['countMiscellaneousFee'];
-                          double? otherFee = result['otherFee'];
+                            double? totalAmount = result['totalAmount'];
+                            double? totalTuitionFee = result['totalTuitionFee'];
+                            double? countMiscellaneousFee = result['countMiscellaneousFee'];
+                            double? otherFee = result['otherFee'];
 
-                          // Handle "Print EAF" button click
-                          List<Map<String, double>> paymentBreakdown = [];
-                          var studentNum = studentId;
-                          var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
-                          var studentCourse = "${data['program']}";
-                          var studentCollege = "${data['college']}";
-                          var aysem = int.parse(flags[0]['value']);
-                          print("AYSEM: $userBalance");
-                          var paymentTerm = 'N/A';
-                          // SelectedClass
-                          var dateAssessed = 'N/A';
+                            // Handle "Print EAF" button click
+                            List<Map<String, double>> paymentBreakdown = [];
+                            var studentNum = studentId;
+                            var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
+                            var studentCourse = "${data['program']}";
+                            var studentCollege = "${data['college']}";
+                            var aysem = int.parse(flags[0]['value']);
+                            print("AYSEM: $userBalance");
+                            var paymentTerm = 'N/A';
+                            // SelectedClass
+                            var dateAssessed = 'N/A';
 
-                          // Access the payments list
-                          var paymentsList = userBalance[0]['payments'];
+                            // Access the payments list
+                            var paymentsList = userBalance[0]['payments'];
 
 
-                          int paymentsListLength = paymentsList.length;
+                            int paymentsListLength = paymentsList.length;
 
-                          var payment = totalAmount! / paymentsListLength;
+                            var payment = totalAmount! / paymentsListLength;
 
-                          for (int count = 1; count <= paymentsListLength; count++) {
-                            // Create a Map with the key based on the count and the payment value
-                            Map<String, double> paymentMap = {};
-                            if (count == 1) {
-                              paymentMap = {'${count}st Payment': payment};
-                            } else if (count == 3) {
-                              paymentMap = {'${count}rd Payment': payment};
-                            } else if (count == 4 || count == 5) {
-                              paymentMap = {'${count}th Payment': payment};
-                            } else {
-                              paymentMap = {'${count}nd Payment': payment};
+                            for (int count = 1; count <= paymentsListLength; count++) {
+                              // Create a Map with the key based on the count and the payment value
+                              Map<String, double> paymentMap = {};
+                              if (count == 1) {
+                                paymentMap = {'${count}st Payment': payment};
+                              } else if (count == 3) {
+                                paymentMap = {'${count}rd Payment': payment};
+                              } else if (count == 4 || count == 5) {
+                                paymentMap = {'${count}th Payment': payment};
+                              } else {
+                                paymentMap = {'${count}nd Payment': payment};
+                              }
+                              paymentBreakdown.add(paymentMap);
                             }
-                            paymentBreakdown.add(paymentMap);
-                          }
 
 
-                          CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
-                              studentName: studentName, studentCourse: studentCourse, college: studentCollege,
-                              aysem: aysem, paymentTerm: paymentTerm, selectedClass: selectedClass,
-                              tuitionFee: totalTuitionFee!, miscellaneousFee: countMiscellaneousFee!, otherFees:
-                              otherFee!, totalAmount: totalAmount, paymentType: paymentsListLength, dateAssessed:
-                              dateAssessed, payment: paymentBreakdown);
+                            CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
+                                studentName: studentName, studentCourse: studentCourse, college: studentCollege,
+                                aysem: aysem, paymentTerm: paymentTerm, selectedClass: selectedClass,
+                                tuitionFee: totalTuitionFee!, miscellaneousFee: countMiscellaneousFee!, otherFees:
+                                otherFee!, totalAmount: totalAmount, paymentType: paymentsListLength, dateAssessed:
+                                dateAssessed, payment: paymentBreakdown);
 
-                           await _generatePdf(pdfData);
+                            await _generatePdf(pdfData);
+                            setState(() => isLoading = true);
+                          },
 
-                        },
-
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.green[900], // Change button color to green
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green[900], // Change button color to green
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(14.0),
+                            child: isLoading ? Text("Print EAF") : CircularProgressIndicator(color: Colors.white),
+                          )
                         ),
-                        child: Text('Print EAF'),
-                      ),
+                      )
+
                     ],
                   ),
                 );
@@ -554,64 +560,67 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
     double? countMiscellaneousFee = result['countMiscellaneousFee'];
     double? otherFee = result['otherFee'];
 
-    //, int studentNum, String studentName, String yearTerm,
-    //       String course, String college, String paymentTerms
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(height: 20),
-        Text(
-          'Congratulations on your \n successful enrollment!',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+    return Center(
+      child:  Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 20),
+          Text(
+            'Congratulations on your \n successful enrollment!',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-        ),
-        SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () async {
-            // Handle "Print EAF" button click
-            List<Map<String, double>> paymentBreakdown = [];
-            var studentNum = studentId;
-            var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
-            var studentCourse = "${data['program']}";
-            var studentCollege = "${data['college']}";
-            var aysem = int.parse(flags.first['value']);
-            var paymentTerm = 'N/A';
-            // SelectedClass
-            var dateAssessed = 'N/A';
-            var payment = totalAmount! / _selectedPaymentType;
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () async {
+              setState(() => isLoading = false);
+              // Handle "Print EAF" button click
+              List<Map<String, double>> paymentBreakdown = [];
+              var studentNum = studentId;
+              var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
+              var studentCourse = "${data['program']}";
+              var studentCollege = "${data['college']}";
+              var aysem = int.parse(flags.first['value']);
+              var paymentTerm = 'N/A';
+              // SelectedClass
+              var dateAssessed = 'N/A';
+              var payment = totalAmount! / _selectedPaymentType;
 
-            for (int count = 1; count <= _selectedPaymentType; count++) {
-              Map<String, double> paymentMap = {};
-              if (count == 1) {
-                paymentMap = {'${count}st Payment': payment};
-              } else if (count == 3) {
-                paymentMap = {'${count}rd Payment': payment};
-              } else if (count == 4 || count == 5) {
-                paymentMap = {'${count}th Payment': payment};
-              } else {
-                paymentMap = {'${count}nd Payment': payment};
+              for (int count = 1; count <= _selectedPaymentType; count++) {
+                Map<String, double> paymentMap = {};
+                if (count == 1) {
+                  paymentMap = {'${count}st Payment': payment};
+                } else if (count == 3) {
+                  paymentMap = {'${count}rd Payment': payment};
+                } else if (count == 4 || count == 5) {
+                  paymentMap = {'${count}th Payment': payment};
+                } else {
+                  paymentMap = {'${count}nd Payment': payment};
+                }
+                paymentBreakdown.add(paymentMap);
               }
-              paymentBreakdown.add(paymentMap);
-            }
-            CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
-                studentName: studentName, studentCourse: studentCourse, college: studentCollege,
-                aysem: aysem, paymentTerm: paymentTerm, selectedClass: userSelectedClasses,
-                tuitionFee: totalTuitionFee!, miscellaneousFee: countMiscellaneousFee!, otherFees:
-                otherFee!, totalAmount: totalAmount, paymentType: _selectedPaymentType, dateAssessed:
-                dateAssessed, payment: paymentBreakdown);
+              CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
+                  studentName: studentName, studentCourse: studentCourse, college: studentCollege,
+                  aysem: aysem, paymentTerm: paymentTerm, selectedClass: userSelectedClasses,
+                  tuitionFee: totalTuitionFee!, miscellaneousFee: countMiscellaneousFee!, otherFees:
+                  otherFee!, totalAmount: totalAmount, paymentType: _selectedPaymentType, dateAssessed:
+                  dateAssessed, payment: paymentBreakdown);
 
-            await _generatePdf(pdfData);
-          },
-          style: ElevatedButton.styleFrom(
-            primary: Colors.green[900], // Change button color to green
+              await _generatePdf(pdfData);
+              setState(() => isLoading = true);
+            },
+            style: ElevatedButton.styleFrom(
+              primary: Colors.green[900], // Change button color to green
+            ),
+              child: Padding(
+                padding: EdgeInsets.all(14.0),
+                child: isLoading ? Text("Print EAF") : CircularProgressIndicator(color: Colors.white),
+              ),
           ),
-          child: Text('Print EAF'),
-        ),
-        SizedBox(height: 20),
-      ],
+          SizedBox(height: 20),
+        ],
+      ),
     );
+
   }
 
   Future<void> _generatePdf(CRSGPdfModel pdfData) async {
@@ -973,7 +982,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
       ),
     );
   }
-
   Widget _buildStepIndicator(int step) {
     return Container(
       width: 40.0,
@@ -1027,7 +1035,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
 
     if (flags.isNotEmpty) {
       var flag = flags[0]['value']; // Assuming 'value' is the key you want
-      var program = "CET";
+      var program = data['program'];
       var id = studentId;
 
       await apiService.addBalance(id, totalAmount!, totalAmount, selectedPayment, program, flag);

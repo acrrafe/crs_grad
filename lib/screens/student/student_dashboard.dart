@@ -532,10 +532,9 @@ class _StudDashBoardContent extends State<StudDashBoardContent> {
                                     DataColumn(label: Text('Status')),
                                   ],
 
-                                  rows: userBalance[0]['payments'].map<DataRow>((
-                                      userBalances) {
-                                    // Extract relevant information from classInfo
-                                    // String classSection = "${userBalances['payments']['paymentPartial']}";
+                                  rows: userBalance.isNotEmpty
+                                      ? userBalance[0]['payments'].map<DataRow>((userBalances) {
+                                    // Your DataRow creation logic here
                                     int itemCount = userBalances['paymentPartial'];
                                     String classSection = " ";
                                     switch (itemCount) {
@@ -585,7 +584,9 @@ class _StudDashBoardContent extends State<StudDashBoardContent> {
                                         DataCell(Text(statusLong)),
                                       ],
                                     );
-                                  }).toList(),
+                                  }).toList()
+                                      : <DataRow>[], // Return an empty list if userBalance is empty
+
                                 ),
                               )
                             ],

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:microsoft_graph_api/microsoft_graph_api.dart';
 import 'package:microsoft_graph_api/models/models.dart';
+import 'package:plm_crs_grad/screens/faculty/faculty_dashboard.dart';
+
 import 'student/student_dashboard.dart';
 import '../auth/auth_config.dart';
 import '../services/apiService.dart';
@@ -73,8 +75,10 @@ class UserHomePageState extends State<UserHomePage> {
                   StudentDashboardApp(studentId: data['studentId']),
             ),
           );
-        } else if (data['userType'] == 'faculty') {
-          // Gayahin mo lang din ung sa if pero lagay mo ung sarili mong path
+        } else if(data['userType'] != null && data['emailAddress'] != null && data['facultyId'] != null){
+          Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (context) =>
+                  FacultyDashBoardApp(facultyId: data['facultyId'])));
         }
       }
     }
@@ -182,22 +186,16 @@ class UserHomePageState extends State<UserHomePage> {
       print("USER DATA: $data");
 
       if (data['userType'] != null && data['emailAddress'] != null && data['studentId'] != null) {
-        if(data['userType'] == 'student'){
           Navigator.pop(context);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)
-          => StudentDashboardApp(studentId: data['studentId'])));
-        }else if(data['userType'] == 'faculty'){
-          // Gayahin mo lang ung loob ng if, ibahin mo lang kung saang activity mo idadirect
-          /*
+          Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (context) =>
+                  StudentDashboardApp(studentId: data['studentId'])));
+      } else if(data['userType'] != null && data['emailAddress'] != null && data['facultyId'] != null){
           Navigator.pop(context);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)
-                    => FacultyDashBoard App(studentId: data['studentId'])));  // Name ng Class mo sa ibang activity
-           */
-        }else{
-          await oauth.logout();
-          showMessage('Your Account is not registered!');
-        }
-      } else {
+          Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) =>
+          FacultyDashBoardApp(facultyId: data['facultyId'])));
+      }else {
         await oauth.logout();
         showMessage('One or more required values (userType, emailAddress, studentId) are null, unable to navigate to the student dashboard');
       }
@@ -270,5 +268,10 @@ class UserHomePageState extends State<UserHomePage> {
     );
   }
 
+  @override
+  void dispose() {
+    // Clean up resources here, if needed
+    super.dispose();
+  }
 
 }

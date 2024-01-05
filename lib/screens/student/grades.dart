@@ -53,8 +53,9 @@ class _StudentGradesAppPageState extends State<StudentGradesAppPage> {
   late List<Map<String, dynamic>> classInfo = [];
   late List<Map<String, dynamic>> flags = [];
   late List<Map<String, dynamic>> visibleClassInfos = [];
-
   late List<Map<String, dynamic>> filteredClassInfos = [];
+
+  bool isLoading = true;
 
   int _currentPage = 1;
   int _rowsPerPage = 10;
@@ -140,15 +141,21 @@ class _StudentGradesAppPageState extends State<StudentGradesAppPage> {
                   // Button at the center below the table
                   Center(
                     child: ElevatedButton(
+
                       onPressed: visibleClassInfos.isNotEmpty
                           ? () async {
+                        setState(() => isLoading = false);
                         await _generatePdf(visibleClassInfos);
+                        setState(() => isLoading = true);
                       }
                           : null,
                       style: ElevatedButton.styleFrom(
                         primary: Colors.green[900], // Change button color to green
                       ),
-                      child: Text('Print Grades'),
+                      child: Padding(
+                        padding: EdgeInsets.all(14),
+                        child: isLoading ? Text("Print Grades") : CircularProgressIndicator(color: Colors.white),
+                      )
                     ),
                   ),
                   // Add your enrollment-related widgets here

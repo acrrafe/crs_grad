@@ -19,11 +19,13 @@ class APIService {
       final userType = firstDataObject['userType'];
       final emailAddress = firstDataObject['emailAddress'];
       final studentId = firstDataObject['studentId'];
+      final facultyId = firstDataObject['facultyId'];
 
       final data = {
         'userType': userType,
         'emailAddress': emailAddress,
         'studentId': studentId,
+        'facultyId': facultyId,
       };
       return data;
 
@@ -515,6 +517,36 @@ class APIService {
 
     }
   }
+
+  // Get the information of the enlisted classes of a specific enrolled student
+  Future<Map<String, dynamic>> fetchFacultyClass(int facultyId, int aysem) async {
+    var userLog = "faculties/$facultyId?class-infos?aysem[eq]=$aysem"; // Class Infos Path icoconnect sa main path
+    var apiURL = "$mobileURL$userLog";
+    var url = Uri.parse(apiURL);
+    print("URL: $apiURL");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse.containsKey('data')) {
+
+        final jsonResponse = json.decode(response.body);
+        final firstDataObject = jsonResponse['data'];
+        List<dynamic> classes = [];
+          final id = firstDataObject['id'];
+          classes = firstDataObject['classes'];
+          final data = {
+            'id': id,
+            'classes': classes
+          };
+        print("JSON RESPONSE: $jsonResponse");
+        print("DATA: $data");
+        return data;
+      }
+    }
+
+    throw Exception('Failed to fetch data');
+  }
+
 
 
 
