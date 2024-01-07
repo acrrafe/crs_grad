@@ -1,7 +1,6 @@
-// import 'dart:js_interop';
+
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plm_crs_grad/screens/student/student_dashboard.dart';
@@ -137,11 +136,26 @@ class _StudentGradesAppPageState extends State<StudentGradesAppPage> {
                   // Pagination and Search Bar Row
                   buildPaginationAndSearchBarRow(),
                   // DataTable
-                  buildDataTable(),
+                  Visibility(
+                    visible: classInfos.isNotEmpty,
+                      child: buildDataTable()),
                   // Button at the center below the table
+              Visibility(
+                visible: classInfos.isEmpty,
+                child:SizedBox(height: 140,)),
+                  Visibility(
+                    visible: classInfos.isEmpty,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "No data is available",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 40,),
                   Center(
                     child: ElevatedButton(
-
                       onPressed: visibleClassInfos.isNotEmpty
                           ? () async {
                         setState(() => isLoading = false);
@@ -295,7 +309,7 @@ class _StudentGradesAppPageState extends State<StudentGradesAppPage> {
                   DataCell(Text(classInfo['subjectName'])),
                   DataCell(Text(classInfo['subjectUnits'].toString())),
                   DataCell(Text(classInfo['grade'].toString())),
-                  DataCell(Text(classInfo['remarks'] ?? "N\\A"),),
+                  DataCell(Text(classInfo['remarks'] ?? "N/A"),),
                 ],
               );
             }).toList(),
@@ -535,7 +549,6 @@ class _StudentGradesAppPageState extends State<StudentGradesAppPage> {
 
 }
 
-
 // Custom Search Bar
 class SearchBar extends StatelessWidget {
   final TextEditingController searchController = TextEditingController();
@@ -560,10 +573,14 @@ class SearchBar extends StatelessWidget {
         },
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-          labelText: 'e.g. 20231',
           hintText: 'e.g. 20231',
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(Icons.search),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey), // Set the default border color
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.green[900]!), // Change the color as needed
+          ),
+          prefixIcon: Icon(Icons.search, color: Colors.green[900]!,),
         ),
       ),
     );

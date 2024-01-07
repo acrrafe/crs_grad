@@ -1,9 +1,12 @@
 import 'package:aad_oauth/aad_oauth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:plm_crs_grad/screens/faculty/faculty_teaching.dart';
 import '../../auth/auth_config.dart';
 import '../../services/apiService.dart';
 import '../login.dart';
+import 'faculty_grades.dart';
+import 'faculty_profile.dart';
 
 
 class FacultyDashBoardApp extends StatelessWidget {
@@ -34,9 +37,9 @@ class _FacultyDashBoardHomeState extends State<FacultyDashBoardHome> {
     return Scaffold(
       body: <Widget>[
         FacDashBoardContent(facultyId: widget.facultyId),
-        // StudentEnrollmentApp(studentId: widget.studentId),
-        // StudentGradesApp(studentId: widget.studentId),
-        // StudentMessageApp(studentId: widget.studentId),
+        FacultyGradeContent(facultyId: widget.facultyId),
+        TeachingAssessmentContent(facultyId: widget.facultyId),
+        FacultyProfileContent(facultyId: widget.facultyId),
       ][_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Set to fixed
@@ -139,38 +142,53 @@ class _FacDashBoardContent extends State<FacDashBoardContent> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: fetchData,
-      builder: (context, snapshot)
-      {if (fetchData == null) {
-        // Handle the case when fetchData is null
-        return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
-      }
+    return Scaffold(
+      appBar: CustomAppBar(
+        title: "",
+        onMenuPressed: () {},
+      ),
+      body:  FutureBuilder(
+        future: fetchData,
+        builder: (context, snapshot)
+        {if (fetchData == null) {
+          // Handle the case when fetchData is null
+          return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
+        }
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Future is still loading, return a loading indicator or placeholder
           return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
         } else {
           String aysem = flags.first['value'].toString().substring(0,4);
           int aysemPlus = int.parse(aysem) + 1;
+          int currSem = int.parse(flags.first['value'].toString()[4]);
+          String currSemWhole = "";
+          if (currSem == 1) {
+            currSemWhole = '${currSem}st Semester';
+          } else if (currSem == 2) {
+            currSemWhole = '${currSem}nd Semester';
+          } else if (currSem == 3) {
+            currSemWhole = '${currSem}rd Semester';
+          } else if (currSem == 4) {
+            currSemWhole = '${currSem}th Semester';
+          } else {
+            currSemWhole = '${currSem}th Semester';
+          }
+
           print("FACULTY INFO $facultyInfo}");
           return Scaffold(
-            appBar: CustomAppBar(
-              title: "",
-              onMenuPressed: () {},
-            ),
             body: Column(
               children: [
                 const SizedBox(height: 60),
                 Text(
-                  "1st Semester of SY ${aysem.toString()} - ${aysemPlus.toString()}",
+                  "$currSemWhole of SY ${aysem.toString()} - ${aysemPlus.toString()}",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+
                 const SizedBox(height: 20,),
                 // Horizontally scrollable DataTable
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
-
                     headingRowColor:
                     MaterialStateColor.resolveWith((states) => Colors.red[900]!),
                     headingTextStyle: TextStyle(color: Colors.white),
@@ -229,8 +247,11 @@ class _FacDashBoardContent extends State<FacDashBoardContent> {
             ),
           );
         }
-      },
+        },
+      ),
     );
+
+
 
   }
 }

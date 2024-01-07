@@ -518,9 +518,11 @@ class APIService {
     }
   }
 
-  // Get the information of the enlisted classes of a specific enrolled student
+  // FACULTY
+
+  // Get the information of the classes of a specific faculty
   Future<Map<String, dynamic>> fetchFacultyClass(int facultyId, int aysem) async {
-    var userLog = "faculties/$facultyId?class-infos?aysem[eq]=$aysem"; // Class Infos Path icoconnect sa main path
+    var userLog = "faculties/$facultyId?classInfosAysem[eq]=$aysem"; // Class Infos Path icoconnect sa main path
     var apiURL = "$mobileURL$userLog";
     var url = Uri.parse(apiURL);
     print("URL: $apiURL");
@@ -528,14 +530,21 @@ class APIService {
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       if (jsonResponse.containsKey('data')) {
-
         final jsonResponse = json.decode(response.body);
         final firstDataObject = jsonResponse['data'];
         List<dynamic> classes = [];
           final id = firstDataObject['id'];
+          final firstName = firstDataObject['firstName'];
+          final lastName = firstDataObject['lastName'];
+          final college = firstDataObject['college'];
+          final program = firstDataObject['college'];
           classes = firstDataObject['classes'];
           final data = {
             'id': id,
+            'firstName': firstName,
+            'lastName': lastName,
+            'college': college,
+            'program': program,
             'classes': classes
           };
         print("JSON RESPONSE: $jsonResponse");
@@ -547,6 +556,122 @@ class APIService {
     throw Exception('Failed to fetch data');
   }
 
+
+  // Get the information of the classes of a specific faculty
+  Future<Map<String, dynamic>> fetchFacultyInfo(int facultyId) async {
+    var userLog = "faculties/$facultyId"; // Class Infos Path icoconnect sa main path
+    var apiURL = "$mobileURL$userLog";
+    var url = Uri.parse(apiURL);
+    print("URL: $apiURL");
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      if (jsonResponse.containsKey('data')) {
+        final jsonResponse = json.decode(response.body);
+        final firstDataObject = jsonResponse['data'];
+        List<dynamic> classes = [];
+        // Personal Details
+        final id = firstDataObject['id'];
+        final firstName = firstDataObject['firstName'];
+        final middleName = firstDataObject['middleName'];
+        final lastName = firstDataObject['lastName'];
+        final college = firstDataObject['college'];
+        final program = firstDataObject['program'];
+        final contactNumber = firstDataObject['contactNumber'];
+        final emailAddress = firstDataObject['emailAddress'];
+        final sex = firstDataObject['sex'];
+        final birthDate = firstDataObject['birthDate'];
+        final birthPlace = firstDataObject['birthPlace'];
+
+        // Employment Details
+        final tinNo = firstDataObject['tinNo'];
+        final gsisNo = firstDataObject['gsisNo'];
+        final instructorCode = firstDataObject['instructorCode'];
+
+        //Current Address
+        final address = firstDataObject['address'];
+        final zipCode = firstDataObject['zipCode'];
+
+        classes = firstDataObject['classes'];
+        final data = {
+          'id': id,
+          'firstName': firstName,
+          'middleName': middleName,
+          'lastName': lastName,
+          'college': college,
+          'program': program,
+          'contactNumber': contactNumber,
+          'emailAddress': emailAddress,
+          'sex': sex,
+          'birthDate': birthDate,
+          'birthPlace': birthPlace,
+          'tinNo': tinNo,
+          'gsisNo': gsisNo,
+          'instructorCode': instructorCode,
+          'address': address,
+          'zipCode': zipCode,
+          'classes': classes,
+        };
+        print("JSON RESPONSE: $jsonResponse");
+        print("DATA: $data");
+        return data;
+      }
+    }
+
+    throw Exception('Failed to fetch data');
+  }
+
+
+  // Get the studentId from Users and use that to fetch the users information
+  Future <List<Map<String, dynamic>>> fetchFacultyGrades(int classId) async {
+    var userLog = "grades?classId[eq]=$classId"; // Path na icoconnect sa main path
+    var apiURL = "$mobileURL$userLog";
+    var url = Uri.parse(apiURL);
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+
+      final List<dynamic> dataList = jsonResponse['data'];
+      final List<Map<String, dynamic>> resultList = [];
+
+      for (final data in dataList) {
+        final subjectCode = data['subjectCode'];
+        final subjectName = data['subjectName'];
+        final subjectUnits = data['subjectUnits'];
+        final aysem = data['aysem'];
+        final studentId = data['studentId'];
+        final name = data['name'];
+        final college = data['college'];
+        final program = data['program'];
+        final grade = data['grade'];
+        final remarks = data['remarks'];
+
+
+        final data2 = {
+          'subjectCode': subjectCode,
+          'subjectName': subjectName,
+          'subjectUnits': subjectUnits,
+          'aysem': aysem,
+          'studentId': studentId,
+          'name': name,
+          'college': college,
+          'program': program,
+          'grade': grade,
+          'remarks': remarks,
+        };
+
+        print("JSON RESPONSE: $jsonResponse");
+        print("DATA: $resultList");
+        resultList.add(data2);
+      }
+      return resultList;
+    } else {
+      throw Exception('Failed to fetch data');
+
+    }
+  }
 
 
 

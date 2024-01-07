@@ -384,7 +384,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
               DataColumn(label: Text('Units')),
               DataColumn(label: Text('Prerequisites')),
               DataColumn(label: Text('Schedule')),
-              DataColumn(label: Text('Slots')),
+              DataColumn(label: Text('Maximum Slots')),
               DataColumn(label: Text('Enlisted')),
               DataColumn(label: Text('Enrolled')),
             ],
