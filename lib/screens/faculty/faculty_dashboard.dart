@@ -251,8 +251,11 @@ class _FacDashBoardContent extends State<FacDashBoardContent> {
       ),
     );
 
-
-
+  }
+  @override
+  void dispose() {
+    // Clean up resources here, if needed
+    super.dispose();
   }
 }
 
@@ -348,6 +351,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       },
     );
   }
+
 }
 
 

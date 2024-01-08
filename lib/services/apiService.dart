@@ -400,6 +400,7 @@ class APIService {
           final excess = data['excess'];
           final balance = data['balance'];
           final aysem = data['aysem'];
+          final billedPate = data['billedPate'];
           final List<Map<String, dynamic>> payments =
           (data['payments'] as List).cast<Map<String, dynamic>>();
 
@@ -411,6 +412,7 @@ class APIService {
               'balance': balance,
               'aysem': aysem,
               'payments': payments,
+              'billedPate': billedPate,
             };
           resultList.add(data2);
         }

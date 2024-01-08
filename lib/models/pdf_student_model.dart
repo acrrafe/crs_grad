@@ -5,7 +5,7 @@ class CRSGPdfModel {
   String studentName;
   String studentCourse;
   String college;
-  int aysem;
+  String aysem;
   String paymentTerm;
   List<Map<String, dynamic>> selectedClass;
   double tuitionFee;

@@ -43,7 +43,6 @@ class _FacultyProfileContent extends State<FacultyProfileContent> {
       print('Error fetching data: $error');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,220 +77,200 @@ class _FacultyProfileContent extends State<FacultyProfileContent> {
                         ),
                         elevation: 3.0,
                         margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-                        child: Flexible(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2.0, 14.0, 2.0, 10),
-                            child:     Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  // Maximize the width of the title background
-                                  padding: const EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[900],
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: const Text(
-                                    'PERSONAL DETAILS',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        child: Container(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                // Maximize the width of the title background
+                                padding: const EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.red[900],
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: const Text(
+                                  'PERSONAL DETAILS',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 10.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10.0, 8.0, 10.0, 8.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14.0,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Employee No: ',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: '${widget.facultyId}',
-                                                ),
-                                              ],
+                              ),
+                              const SizedBox(height: 10.0),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Employee No: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
-
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10.0, 8.0, 10.0, 8.0),
-
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14.0,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Birth Date: ',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: '${facultyInfo['birthDate']}',
-                                                ),
-                                              ],
-                                            ),
+                                          TextSpan(
+                                            text: '${widget.facultyId}',
                                           ),
-
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10.0, 8.0, 10.0, 8.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14.0,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'First Name: ',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: '${facultyInfo['firstName']}',
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10.0, 8.0, 10.0, 8.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14.0,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Last Name: ',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: '${facultyInfo['lastName']}',
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10.0, 8.0, 10.0, 8.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14.0,
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'Email Address: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '${facultyInfo['emailAddress']}',
-                                            ),
-                                          ],
-                                        ),
+                                        ],
                                       ),
                                     ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10.0, 8.0, 10.0, 8.0),
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14.0,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Sex: ',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: '${facultyInfo['gender'] == 'M' ? 'Male' : 'Female'}',
-                                                ),
-                                              ],
+
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Birth Date: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10.0, 8.0, 10.0, 8.0),
-
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14.0,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Contact No: ',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: '${facultyInfo['contactNumber']}',
-                                                ),
-                                              ],
-                                            ),
+                                          TextSpan(
+                                            text: '${facultyInfo['birthDate']}',
                                           ),
-
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
 
-                                  ],
-                                )
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'First Name: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['firstName']}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Last Name: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['lastName']}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Email Address: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['emailAddress']}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Sex: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['gender'] == 'M' ? 'Male' : 'Female'}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
 
-                              ],
-                            ),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Contact No: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['contactNumber']}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                  ),
+                                ],
+                              )
+                            ],
                           ),
                         ),
                       ),
@@ -306,111 +285,109 @@ class _FacultyProfileContent extends State<FacultyProfileContent> {
                         ),
                         elevation: 3.0,
                         margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-                        child: Flexible(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2.0, 14.0, 2.0, 10),
-                            child:     Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  // Maximize the width of the title background
-                                  padding: const EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[900],
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: const Text(
-                                    'EMPLOYMENT DETAILS',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        child: Container(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              Container(
+                                width: double.infinity,
+                                // Maximize the width of the title background
+                                padding: const EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.red[900],
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: const Text(
+                                  'EMPLOYMENT DETAILS',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 10.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10.0, 8.0, 10.0, 8.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14.0,
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'TIN No: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '${facultyInfo['tinNo']}',
-                                            ),
-                                          ],
+                              ),
+                              const SizedBox(height: 10.0),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
                                         ),
-                                      ),
-
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10.0, 8.0, 10.0, 8.0),
-
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14.0,
+                                        children: [
+                                          TextSpan(
+                                            text: 'TIN No: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'GSIS No: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '${facultyInfo['gsisNo']}',
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10.0, 8.0, 10.0, 8.0),
-
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14.0,
+                                          TextSpan(
+                                            text: '${facultyInfo['tinNo']}',
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'Instructor Code: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '${facultyInfo['instructorCode']}',
-                                            ),
-                                          ],
-                                        ),
+                                        ],
                                       ),
-
                                     ),
-                                  ],
-                                )
 
-                              ],
-                            ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'GSIS No: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['gsisNo']}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Instructor Code: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['instructorCode']}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                  ),
+                                ],
+                              )
+                            ],
                           ),
                         ),
                       ),
@@ -425,84 +402,81 @@ class _FacultyProfileContent extends State<FacultyProfileContent> {
                         ),
                         elevation: 3.0,
                         margin: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-                        child: Flexible(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2.0, 14.0, 2.0, 10),
-                            child:     Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  // Maximize the width of the title background
-                                  padding: const EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[900],
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: const Text(
-                                    'CURRENT ADDRESS',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        child:  Container(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                // Maximize the width of the title background
+                                padding: const EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.red[900],
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: const Text(
+                                  'CURRENT ADDRESS',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 10.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10.0, 8.0, 10.0, 8.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14.0,
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'Street Address: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '${facultyInfo['address']}',
-                                            ),
-                                          ],
+                              ),
+                              const SizedBox(height: 10.0),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
                                         ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Street Address: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['address']}',
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10.0, 8.0, 10.0, 8.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14.0,
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'Zip Code: ',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '${facultyInfo['zipCode']}',
-                                            ),
-                                          ],
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10.0, 8.0, 10.0, 8.0),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
                                         ),
+                                        children: [
+                                          TextSpan(
+                                            text: 'Zip Code: ',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '${facultyInfo['zipCode']}',
+                                          ),
+                                        ],
                                       ),
                                     ),
+                                  ),
 
-                                  ],
-                                )
-
-                              ],
-                            ),
+                                ],
+                              )
+                            ],
                           ),
                         ),
                       ),

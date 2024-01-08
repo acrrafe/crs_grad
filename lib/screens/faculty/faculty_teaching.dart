@@ -184,7 +184,7 @@ class _TeachingAssessmentContent extends State<TeachingAssessmentContent> {
                       ),
                       child: Padding(
                         padding: EdgeInsets.all(14),
-                        child: isLoading ? Text("Print Grades") : CircularProgressIndicator(color: Colors.white),
+                        child: isLoading ? Text("Print") : CircularProgressIndicator(color: Colors.white),
                       )
                   ),
                 )

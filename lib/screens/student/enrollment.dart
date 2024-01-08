@@ -145,6 +145,28 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                             List<Map<String, dynamic>> selectedClass = (data['class_infos'] as List).cast<Map<String, dynamic>>();
                             Map<String, double> result = calculateTotalAmount(selectedClass, flags);
 
+                            String aysem = flags.first['value'].toString().substring(0,4);
+                            // int aysemPlus = int.parse(aysem) + 1;
+                            int currSem = int.parse(flags.first['value'].toString()[4]);
+                            String currSemWhole = "";
+                            String currPayWhole = "";
+                            if (currSem == 1) {
+                              currSemWhole = '${currSem}st Semester';
+                              currPayWhole = '${currSem}st Payment';
+                            } else if (currSem == 2) {
+                              currSemWhole = '${currSem}nd Semester';
+                              currPayWhole = '${currSem}nd Payment';
+                            } else if (currSem == 3) {
+                              currSemWhole = '${currSem}rd Semester';
+                              currPayWhole = '${currSem}rd Payment';
+                            } else if (currSem == 4) {
+                              currSemWhole = '${currSem}th Semester';
+                              currPayWhole = '${currSem}th Payment';
+                            } else {
+                              currSemWhole = '${currSem}th Semester';
+                              currPayWhole = '${currSem}th Payment';
+                            }
+
                             double? totalAmount = result['totalAmount'];
                             double? totalTuitionFee = result['totalTuitionFee'];
                             double? countMiscellaneousFee = result['countMiscellaneousFee'];
@@ -156,16 +178,14 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                             var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
                             var studentCourse = "${data['program']}";
                             var studentCollege = "${data['college']}";
-                            var aysem = int.parse(flags[0]['value']);
                             print("AYSEM: $userBalance");
-                            var paymentTerm = 'N/A';
                             // SelectedClass
-                            var dateAssessed = 'N/A';
 
                             // Access the payments list
                             var paymentsList = userBalance[0]['payments'];
+                            var dateAssessed = userBalance[0]['payments'][0]['billedPate'];
 
-
+                            print("DATE ASSESS $dateAssessed");
                             int paymentsListLength = paymentsList.length;
 
                             var payment = totalAmount! / paymentsListLength;
@@ -184,11 +204,11 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
                               }
                               paymentBreakdown.add(paymentMap);
                             }
-
+                            String aysemCombined = "$aysem | $currSemWhole";
 
                             CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
                                 studentName: studentName, studentCourse: studentCourse, college: studentCollege,
-                                aysem: aysem, paymentTerm: paymentTerm, selectedClass: selectedClass,
+                                aysem: aysemCombined, paymentTerm: currPayWhole, selectedClass: selectedClass,
                                 tuitionFee: totalTuitionFee!, miscellaneousFee: countMiscellaneousFee!, otherFees:
                                 otherFee!, totalAmount: totalAmount, paymentType: paymentsListLength, dateAssessed:
                                 dateAssessed, payment: paymentBreakdown);
@@ -372,7 +392,6 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
     int endIndex = startIndex + _rowsPerPage;
     endIndex = endIndex > classInfos.length ? classInfos.length : endIndex;
     List<Map<String, dynamic>> visibleClassInfos = classInfos.sublist(startIndex, endIndex);
-
     return Flexible(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -563,6 +582,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
     return Center(
       child:  Column(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(height: 20),
           Text(
@@ -573,16 +593,38 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
           ElevatedButton(
             onPressed: () async {
               setState(() => isLoading = false);
+              await fetchDataAsync();
               // Handle "Print EAF" button click
+              String aysem = flags.first['value'].toString().substring(0,4);
+              // int aysemPlus = int.parse(aysem) + 1;
+              int currSem = int.parse(flags.first['value'].toString()[4]);
+              String currSemWhole = "";
+              String currPayWhole = "";
+              if (currSem == 1) {
+                currSemWhole = '${currSem}st Semester';
+                currPayWhole = '${currSem}st Payment';
+              } else if (currSem == 2) {
+                currSemWhole = '${currSem}nd Semester';
+                currPayWhole = '${currSem}nd Payment';
+              } else if (currSem == 3) {
+                currSemWhole = '${currSem}rd Semester';
+                currPayWhole = '${currSem}rd Payment';
+              } else if (currSem == 4) {
+                currSemWhole = '${currSem}th Semester';
+                currPayWhole = '${currSem}th Payment';
+              } else {
+                currSemWhole = '${currSem}th Semester';
+                currPayWhole = '${currSem}th Payment';
+              }
+
+              String aysemCombined = "$aysem | $currSemWhole";
+
               List<Map<String, double>> paymentBreakdown = [];
               var studentNum = studentId;
               var studentName = "${data['firstName']} ${data['middleName']} ${data['lastName']}";
               var studentCourse = "${data['program']}";
               var studentCollege = "${data['college']}";
-              var aysem = int.parse(flags.first['value']);
-              var paymentTerm = 'N/A';
-              // SelectedClass
-              var dateAssessed = 'N/A';
+              var dateAssessed = userBalance[0]['payments'][0]['billedPate'];
               var payment = totalAmount! / _selectedPaymentType;
 
               for (int count = 1; count <= _selectedPaymentType; count++) {
@@ -600,7 +642,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
               }
               CRSGPdfModel pdfData = CRSGPdfModel(studentNo: studentNum,
                   studentName: studentName, studentCourse: studentCourse, college: studentCollege,
-                  aysem: aysem, paymentTerm: paymentTerm, selectedClass: userSelectedClasses,
+                  aysem: aysemCombined, paymentTerm: currPayWhole, selectedClass: userSelectedClasses,
                   tuitionFee: totalTuitionFee!, miscellaneousFee: countMiscellaneousFee!, otherFees:
                   otherFee!, totalAmount: totalAmount, paymentType: _selectedPaymentType, dateAssessed:
                   dateAssessed, payment: paymentBreakdown);
@@ -613,7 +655,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
             ),
               child: Padding(
                 padding: EdgeInsets.all(14.0),
-                child: isLoading ? Text("Print EAF") : CircularProgressIndicator(color: Colors.white),
+                child: isLoading ? const Text("Print EAF") : CircularProgressIndicator(color: Colors.white),
               ),
           ),
           SizedBox(height: 20),
@@ -637,6 +679,11 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
 
     List<Map<String, dynamic>> amountPaid = [];
 
+    String rawDate = pdfData.dateAssessed;
+    DateTime dateAssessed = DateTime.parse(rawDate);
+
+    String formattedDate = DateFormat('MMMM d, y').format(dateAssessed);
+
     for(int count=1; count<=3; count++){
       Map<String, dynamic> paymentMap = {};
 
@@ -646,7 +693,7 @@ class _StudentEnrollmentPageState extends State<StudentEnrollmentPage> {
         paymentMap = {'Payment Type': "Partial"};
       }
       else if (count == 2) {
-        paymentMap = {'Date Assessed': 'N/A'};
+        paymentMap = {'Date Assessed': formattedDate};
       } else if (count == 3) {
         paymentMap = {'1st Payment': pdfData.payment[0]["1st Payment"]};
       } else {

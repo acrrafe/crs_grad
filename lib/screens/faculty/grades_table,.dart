@@ -60,8 +60,8 @@ class _GradesContent extends State<GradesContent> {
         // Future is still loading, return a loading indicator or placeholder
         return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.red[900]!)));
       } else {
-        String aysem = classInfo[0]['aysem'].toString();
-        int currSem = int.parse(aysem.toString()[4]);
+        String aysem = classInfo.isNotEmpty ? classInfo[0]['aysem']?.toString() ?? "" : "";
+        int currSem = aysem.isNotEmpty ? int.parse(aysem[4]) : 0;
         int rowCount = 0;
         return Scaffold(
           body: Column(

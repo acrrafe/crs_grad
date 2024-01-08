@@ -139,15 +139,23 @@ class _FacultyGradeContent extends State<FacultyGradeContent> {
                       DataCell(Text('Day: ${data['classDay']}, Time: ${formatTime(data['timeStart'])} - ${formatTime(data['timeEnd'])} at  ${data['room']}')),
                       DataCell(Text(data['faculty']?.toString() ?? '')),
                       DataCell(
-                        IconButton(
-                          icon: Icon(Icons.note_alt_outlined), // Change the icon as needed
+                        ElevatedButton.icon(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(
-                                builder: (context) =>
-                                    GradesContent(classId: data['id'])));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => GradesContent(classId: data['id']),
+                              ),
+                            );
                           },
+                          icon: Icon(Icons.note_alt_outlined),
+                          label: Text('View'),
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green[900],
+                          ),
                         ),
                       ),
+
                     ],
                   );
                 })?.toList() ?? [],
